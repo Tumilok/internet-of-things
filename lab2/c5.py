@@ -1,6 +1,4 @@
 from VirtualCopernicusNG import TkCircuit
-import socket
-import struct
 
 # initialize the circuit inside the
 
@@ -24,51 +22,52 @@ configuration = {
 
 circuit = TkCircuit(configuration)
 
-MCAST_GRP = '236.0.0.0'
-MCAST_PORT = 3456
-
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-sock.bind(('', MCAST_PORT))
-mreq = struct.pack("4sl", socket.inet_aton(MCAST_GRP), socket.INADDR_ANY)
-
-sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
-
-
-def receive(led1, led2):
-    command = sock.recv(10240).decode("utf-8").split(';')
-    if command[0] == 'f1' or command[0] == '*':
-        if command[1] == 'bathroom' or command[1] == '*':
-            if command[2] == 'lamp' or command[2] == '*':
-                if command[3] == '1':
-                    if command[4] == 'on':
-                        led1.on()
-                    elif command[4] == 'off':
-                        led1.off()
-                    elif command[4] == 'change':
-                        led1.toggle()
-                elif command[3] == '2':
-                    if command[4] == 'on':
-                        led2.on()
-                    elif command[4] == 'off':
-                        led2.off()
-                    elif command[4] == 'change':
-                        led2.toggle()
-                elif command[3] == '*':
-                    if command[4] == 'on':
-                        led1.on()
-                        led2.on()
-                    elif command[4] == 'off':
-                        led1.off()
-                        led2.off()
-                    elif command[4] == 'change':
-                        led1.toggle()
-                        led2.toggle()
-
 
 @circuit.run
 def main():
     from gpiozero import LED, Button
+    import socket
+    import struct
+
+    MCAST_GRP = '236.0.0.0'
+    MCAST_PORT = 3456
+
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind(('', MCAST_PORT))
+    mreq = struct.pack("4sl", socket.inet_aton(MCAST_GRP), socket.INADDR_ANY)
+
+    sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+
+    def receive():
+        command = sock.recv(10240).decode("utf-8").split(';')
+        if command[0] == 'f1' or command[0] == '*':
+            if command[1] == 'bathroom' or command[1] == '*':
+                if command[2] == 'lamp' or command[2] == '*':
+                    if command[3] == '1':
+                        if command[4] == 'on':
+                            led1.on()
+                        elif command[4] == 'off':
+                            led1.off()
+                        elif command[4] == 'change':
+                            led1.toggle()
+                    elif command[3] == '2':
+                        if command[4] == 'on':
+                            led2.on()
+                        elif command[4] == 'off':
+                            led2.off()
+                        elif command[4] == 'change':
+                            led2.toggle()
+                    elif command[3] == '*':
+                        if command[4] == 'on':
+                            led1.on()
+                            led2.on()
+                        elif command[4] == 'off':
+                            led1.off()
+                            led2.off()
+                        elif command[4] == 'change':
+                            led1.toggle()
+                            led2.toggle()
 
     led1 = LED(21)
     led2 = LED(22)
@@ -79,4 +78,4 @@ def main():
     button2.when_pressed = led2.toggle
 
     while True:
-        receive(led1, led2)
+        receive()
