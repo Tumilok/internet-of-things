@@ -29,11 +29,11 @@ def main():
 
     def button1_pressed():
         print("button1 pressed!")
-        mqttc.publish("smart_house/floor1/lobby/light", "TOGGLE", 0, False)
+        mqttc.publish("smart_house/light/lobby", "TOGGLE", 0, False)
 
     def button2_pressed():
         print("button2 pressed!")
-        mqttc.publish("smart_house/floor1/zone2/light", "OFF", 0, False)
+        mqttc.publish("smart_house/zone2/light", "OFF", 0, False)
 
     led = LED(21)
 
@@ -49,15 +49,15 @@ def main():
 
         # Subscribing in on_connect() means that if we lose the connection and
         # reconnect then subscriptions will be renewed.
-        mqttc.subscribe("smart_house/floor1/lobby/light")
-        mqttc.subscribe("smart_house/floor1/zone2/light")
+        mqttc.subscribe("smart_house/light/lobby")
+        mqttc.subscribe("smart_house/zone2/light")
 
     # The callback for when a PUBLISH message is received from the server.
     def on_message(client, userdata, msg):
         print(msg.topic + " " + str(msg.payload))
         if msg.payload == b'OFF':
             led.off()
-        elif msg.topic == "smart_house/floor1/lobby/light":
+        elif msg.topic == "smart_house/light/lobby":
             if msg.payload == b'TOGGLE':
                 led.toggle()
 
@@ -65,7 +65,7 @@ def main():
     # mqttc = mqtt.Client("client-id")
     # but note that the client id must be unique on the broker. Leaving the client
     # id parameter empty will generate a random id for you.
-    mqttc = mqtt.Client("smart_house_2458554_LB")
+    mqttc = mqtt.Client("smart_house_LB")
     mqttc.on_message = on_message
     mqttc.on_connect = on_connect
 

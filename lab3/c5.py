@@ -29,11 +29,11 @@ def main():
 
     def button1_pressed():
         print("button1 pressed!")
-        mqttc.publish("smart_house/floor1/bathroom/light/1", "TOGGLE", 0, False)
+        mqttc.publish("smart_house/light/bathroom/1", "TOGGLE", 0, False)
 
     def button2_pressed():
         print("button2 pressed!")
-        mqttc.publish("smart_house/floor1/bathroom/light/2", "TOGGLE", 0, False)
+        mqttc.publish("smart_house/light/bathroom/2", "TOGGLE", 0, False)
 
     led1 = LED(21)
     led2 = LED(22)
@@ -50,9 +50,9 @@ def main():
 
         # Subscribing in on_connect() means that if we lose the connection and
         # reconnect then subscriptions will be renewed.
-        mqttc.subscribe("smart_house/floor1/bathroom/light/1")
-        mqttc.subscribe("smart_house/floor1/bathroom/light/2")
-        mqttc.subscribe("smart_house/floor1/zone2/light")
+        mqttc.subscribe("smart_house/light/bathroom/1")
+        mqttc.subscribe("smart_house/light/bathroom/2")
+        mqttc.subscribe("smart_house/zone2/light")
 
     # The callback for when a PUBLISH message is received from the server.
     def on_message(client, userdata, msg):
@@ -60,16 +60,17 @@ def main():
         if msg.payload == b'OFF':
             led1.off()
             led2.off()
-        elif msg.topic == "smart_house/floor1/bathroom/light/1" and msg.payload == b'TOGGLE':
-            led1.toggle()
-        elif msg.topic == "smart_house/floor1/bathroom/light/2" and msg.payload == b'TOGGLE':
-            led2.toggle()
+        elif msg.payload == b'TOGGLE':
+            if msg.topic == "smart_house/light/bathroom/1":
+                led1.toggle()
+            elif msg.topic == "smart_house/light/bathroom/2":
+                led2.toggle()
 
     # If you want to use a specific client id, use
     # mqttc = mqtt.Client("client-id")
     # but note that the client id must be unique on the broker. Leaving the client
     # id parameter empty will generate a random id for you.
-    mqttc = mqtt.Client("smart_house_2458554_BTH")
+    mqttc = mqtt.Client("smart_house_BTHR")
     mqttc.on_message = on_message
     mqttc.on_connect = on_connect
 

@@ -19,6 +19,7 @@ configuration = {
 
 circuit = TkCircuit(configuration)
 
+
 @circuit.run
 def main():
     # now just write the code you would use on a real Raspberry Pi
@@ -59,6 +60,6 @@ def main():
     mqttc.on_message = on_message
     mqttc.on_connect = on_connect
 
-    mqttc.connect("127.0.0.1", 1883, 60)
+    mqttc.connect("test.mosquitto.org", 1883, 60)
 
     mqttc.loop_forever()
